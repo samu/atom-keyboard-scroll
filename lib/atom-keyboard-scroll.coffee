@@ -6,17 +6,17 @@ module.exports =
   activate: ->
     @subscriptions = new CompositeDisposable
 
-    @subscriptions.add atom.commands.add "atom-text-editor:not(.mini)",
+    @subscriptions.add atom.commands.add "atom-text-editor",
       "atom-keyboard-scroll:scrollUpWithCursor": (e) => @scrollUp(true)
 
-    @subscriptions.add atom.commands.add "atom-text-editor:not(.mini)",
-      "atom-keyboard-scroll:scrollDownWithCursor": (e) => @move(e)
+    @subscriptions.add atom.commands.add "atom-text-editor",
+      "atom-keyboard-scroll:scrollDownWithCursor": (e) => @scrollDown(true)
 
-    @subscriptions.add atom.commands.add "atom-text-editor:not(.mini)",
-      "atom-keyboard-scroll:scrollUp": (e) => @move(e)
+    @subscriptions.add atom.commands.add "atom-text-editor",
+      "atom-keyboard-scroll:scrollUp": (e) => @scrollUp(false)
 
-    @subscriptions.add atom.commands.add "atom-text-editor:not(.mini)",
-      "atom-keyboard-scroll:scrollDown": (e) => @move(e)
+    @subscriptions.add atom.commands.add "atom-text-editor",
+      "atom-keyboard-scroll:scrollDown": (e) => @scrollDown(false)
 
   deactivate: ->
     @subscriptions.dispose()
@@ -24,9 +24,9 @@ module.exports =
   scrollUp: (moveCursor) ->
     atom.workspace.getActiveEditor().moveCursorUp(1) if moveCursor
     view = atom.workspaceView.getActiveView()
-    view.scrollTop(view.scrollTop() - view.lineHeight);
+    view.scrollTop(view.scrollTop() - view.lineHeight)
 
   scrollDown: (moveCursor) ->
     atom.workspace.getActiveEditor().moveCursorDown(1) if moveCursor
     view = atom.workspaceView.getActiveView()
-    view.scrollTop(view.scrollTop() + view.lineHeight);
+    view.scrollTop(view.scrollTop() + view.lineHeight)
