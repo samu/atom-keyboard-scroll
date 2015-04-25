@@ -10,6 +10,8 @@ class ScrollAnimation
     @scrollTopBeforeStart = 0
     @animation = undefined
 
+  setEditor: (@editor) ->
+
   step: (currentValue) =>
     @editor?.setScrollTop(currentValue)
 
@@ -17,18 +19,17 @@ class ScrollAnimation
     @linesToScroll = 0
     @animationIsRunning = no
 
-  animate: (editor) ->
-    to = @scrollTopBeforeStart - editor.getLineHeightInPixels() * @linesToScroll
+  animate: ->
+    to = @scrollTopBeforeStart - @editor.getLineHeightInPixels() * @linesToScroll
     @animation?.stop()
-    @editor = editor
-    @animation = jQuery({top: editor.getScrollTop()}).animate({top: to}, duration: 80, easing: "linear", step: @step, done: @done)
+    @animation = jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: 80, easing: "linear", step: @step, done: @done)
 
-  animateLineScroll: (lines, editor) ->
+  animateLineScroll: (lines) ->
     unless @animationIsRunning
       @animationIsRunning = yes
       @linesToScroll = lines
-      @scrollTopBeforeStart = editor.getScrollTop()
-      @animate(editor)
+      @scrollTopBeforeStart = @editor.getScrollTop()
+      @animate()
 
 scrollAnimation = new ScrollAnimation()
 
@@ -58,10 +59,12 @@ module.exports =
 
   scrollUp: (moveCursor) ->
     editor = atom.workspace.getActiveTextEditor()
-    scrollAnimation.animateLineScroll(5, editor)
+    scrollAnimation.setEditor(editor)
+    scrollAnimation.animateLineScroll(5)
     editor.moveUp(5) if moveCursor
 
   scrollDown: (moveCursor) ->
     editor = atom.workspace.getActiveTextEditor()
-    scrollAnimation.animateLineScroll(-5, editor)
+    scrollAnimation.setEditor(editor)
+    scrollAnimation.animateLineScroll(-5)
     editor.moveDown(5) if moveCursor
