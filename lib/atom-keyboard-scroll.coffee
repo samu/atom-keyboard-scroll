@@ -1,8 +1,6 @@
 {Point, CompositeDisposable} = require "atom"
 {jQuery} = require 'atom-space-pen-views'
 
-animationRunning = undefined
-
 class ScrollAnimation
   constructor: ->
     @animationIsRunning = no
@@ -18,13 +16,17 @@ class ScrollAnimation
   done: =>
     @linesToScroll = 0
     @animationIsRunning = no
+    @doneCallback?()
 
   animate: ->
     to = @scrollTopBeforeStart - @editor.getLineHeightInPixels() * @linesToScroll
     @animation?.stop()
-    @animation = jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: 80, easing: "linear", step: @step, done: @done)
+    duration = 0
+    if atom.config.get('atom-keyboard-scroll.animate')
+      duration = atom.config.get('atom-keyboard-scroll.animationDuration')
+    @animation = jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: duration, easing: "linear", step: @step, done: @done)
 
-  animateLineScroll: (lines) ->
+  animateLineScroll: (lines, @doneCallback) ->
     unless @animationIsRunning
       @animationIsRunning = yes
       @linesToScroll = lines
@@ -34,6 +36,21 @@ class ScrollAnimation
 scrollAnimation = new ScrollAnimation()
 
 module.exports =
+  config:
+    linesToScroll:
+      type: "number"
+      default: 4
+      title: "Number of lines to scroll"
+
+    animate:
+      type: "boolean"
+      default: true
+      title: "Animate scroll"
+
+    animationDuration:
+      type: "number"
+      default: 80
+      title: "Duration of animation in milliseconds"
 
   subscriptions: null
 
@@ -58,13 +75,17 @@ module.exports =
     @subscriptions.dispose()
 
   scrollUp: (moveCursor) ->
+    linesToScroll = atom.config.get('atom-keyboard-scroll.linesToScroll')
     editor = atom.workspace.getActiveTextEditor()
     scrollAnimation.setEditor(editor)
-    scrollAnimation.animateLineScroll(5)
-    editor.moveUp(5) if moveCursor
+    scrollAnimation.animateLineScroll(linesToScroll, ->
+      editor.moveUp(linesToScroll) if moveCursor
+    )
 
   scrollDown: (moveCursor) ->
+    linesToScroll = atom.config.get('atom-keyboard-scroll.linesToScroll')
     editor = atom.workspace.getActiveTextEditor()
     scrollAnimation.setEditor(editor)
-    scrollAnimation.animateLineScroll(-5)
-    editor.moveDown(5) if moveCursor
+    scrollAnimation.animateLineScroll(-linesToScroll, ->
+      editor.moveDown(linesToScroll) if moveCursor
+    )

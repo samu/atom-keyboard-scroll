@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "description": "A short description of your package",
   "activationCommands": {
-    "atom-workspace": "atom-keyboard-scroll:scrollUpWithCursor",
-    "atom-workspace": "atom-keyboard-scroll:scrollDownWithCursor",
-    "atom-workspace": "atom-keyboard-scroll:scrollUp",
-    "atom-workspace": "atom-keyboard-scroll:scrollDown"
+    "atom-text-editor": "atom-keyboard-scroll:scrollUpWithCursor",
+    "atom-text-editor": "atom-keyboard-scroll:scrollDownWithCursor",
+    "atom-text-editor": "atom-keyboard-scroll:scrollUp",
+    "atom-text-editor": "atom-keyboard-scroll:scrollDown"
   },
   "repository": "https://github.com/atom/atom-keyboard-scroll",
   "license": "MIT",
