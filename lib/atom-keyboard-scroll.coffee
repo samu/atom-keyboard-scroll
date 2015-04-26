@@ -56,7 +56,9 @@ module.exports =
 
     unless animationRunning
       animationRunning = true
-      animationDuration = atom.config.get('atom-keyboard-scroll.animationDuration')
+      animationDuration = 0
+      if atom.config.get('atom-keyboard-scroll.animate')
+        animationDuration = atom.config.get('atom-keyboard-scroll.animationDuration')
       jQuery({top: from}).animate({top: to}, duration: animationDuration, easing: "swing", step: step, done: done)
 
   doScroll: (isKeydown, moveCursor, direction) ->
