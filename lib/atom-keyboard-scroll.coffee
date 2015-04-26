@@ -26,8 +26,35 @@ class ScrollAnimation
       duration = atom.config.get('atom-keyboard-scroll.animationDuration')
     @animation = jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: duration, easing: "linear", step: @step, done: @done)
 
-  animateLineScroll: (lines, @doneCallback) ->
-    unless @animationIsRunning
+  animate2: ->
+
+  animateLineScroll: (isKeydown, lines, @doneCallback) ->
+    if isKeydown
+      unless @animationIsRunning
+        to = @editor.getScreenLineCount() * @editor.getLineHeightInPixels()
+        # to = @editor.getScrollTop() - @editor.getLineHeightInPixels() * lines
+        difference = to - @editor.getScrollTop()
+        duration = difference
+        @animation = jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: duration, easing: "linear", step: @step, done: @done)
+        @animationIsRunning = yes
+      clearTimeout(@timeout)
+      @timeout = setTimeout((=>
+          @animation.stop()
+          @animationIsRunning = no
+        ), 100)
+    else
+      to = @editor.getScrollTop() - @editor.getLineHeightInPixels() * lines
+      duration = 120
+      if atom.config.get('atom-keyboard-scroll.animate')
+        duration = atom.config.get('atom-keyboard-scroll.animationDuration')
+      jQuery({top: @editor.getScrollTop()}).animate({top: to}, duration: duration, easing: "linear", step: @step, done: @done)
+
+  oldanimateLineScroll: (isKeydown, lines, @doneCallback) ->
+    # @editor.getScreenLineCount() * @editor.getLineHeightInPixels()
+    # console.log "HERE"
+    if @animationIsRunning
+      # console.log "running"
+    else
       @animationIsRunning = yes
       @linesToScroll = lines
       @scrollTopBeforeStart = @editor.getScrollTop()
@@ -59,33 +86,37 @@ module.exports =
 
     @subscriptions.add atom.commands.add "atom-text-editor",
       "atom-keyboard-scroll:scrollUpWithCursor": (e) =>
-        @scrollUp(true)
+        @scrollUp(e.originalEvent.repeat, true)
 
     @subscriptions.add atom.commands.add "atom-text-editor",
       "atom-keyboard-scroll:scrollDownWithCursor": (e) =>
-        @scrollDown(true)
+        @scrollDown(e.originalEvent.repeat, true)
 
     @subscriptions.add atom.commands.add "atom-text-editor",
-      "atom-keyboard-scroll:scrollUp": (e) => @scrollUp(false)
+      "atom-keyboard-scroll:scrollUp": (e) =>
+        @scrollUp(e.originalEvent.repeat, false)
 
     @subscriptions.add atom.commands.add "atom-text-editor",
-      "atom-keyboard-scroll:scrollDown": (e) => @scrollDown(false)
+      "atom-keyboard-scroll:scrollDown": (e) =>
+        # console.log e.originalEvent.repeat
+        # console.log e.originalEvent.type
+        @scrollDown(e.originalEvent.repeat, false)
 
   deactivate: ->
     @subscriptions.dispose()
 
-  scrollUp: (moveCursor) ->
+  scrollUp: (isKeydown, moveCursor) ->
     linesToScroll = atom.config.get('atom-keyboard-scroll.linesToScroll')
     editor = atom.workspace.getActiveTextEditor()
     scrollAnimation.setEditor(editor)
-    scrollAnimation.animateLineScroll(linesToScroll, ->
+    scrollAnimation.animateLineScroll(isKeydown, linesToScroll, ->
       editor.moveUp(linesToScroll) if moveCursor
     )
 
-  scrollDown: (moveCursor) ->
+  scrollDown: (isKeydown, moveCursor) ->
     linesToScroll = atom.config.get('atom-keyboard-scroll.linesToScroll')
     editor = atom.workspace.getActiveTextEditor()
     scrollAnimation.setEditor(editor)
-    scrollAnimation.animateLineScroll(-linesToScroll, ->
+    scrollAnimation.animateLineScroll(isKeydown, -linesToScroll, ->
       editor.moveDown(linesToScroll) if moveCursor
     )
