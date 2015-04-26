@@ -20,7 +20,7 @@ module.exports =
 
     animationDuration:
       type: "number"
-      default: 100
+      default: 150
       title: "Duration of animation in milliseconds"
 
   subscriptions: null
