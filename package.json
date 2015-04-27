@@ -1,7 +1,7 @@
 {
   "name": "keyboard-scroll",
   "main": "./lib/atom-keyboard-scroll",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Scroll like a boss (with your keyboard).",
   "keywords": [
     "keyboard",
