@@ -1,16 +1,13 @@
 {
   "name": "keyboard-scroll",
   "main": "./lib/atom-keyboard-scroll",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Scroll like a boss (with your keyboard).",
   "keywords": [
     "keyboard",
     "scroll"
   ],
   "activationCommands": {
-    "atom-text-editor": "atom-keyboard-scroll:scrollUpWithCursor",
-    "atom-text-editor": "atom-keyboard-scroll:scrollDownWithCursor",
-    "atom-text-editor": "atom-keyboard-scroll:scrollUp",
     "atom-text-editor": "atom-keyboard-scroll:scrollDown"
   },
   "repository": "https://github.com/samu/atom-keyboard-scroll",
