@@ -1,7 +1,7 @@
 {
   "name": "keyboard-scroll",
   "main": "./lib/keyboard-scroll",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Scroll like a boss (with your keyboard).",
   "keywords": [
     "keyboard",
