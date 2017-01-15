@@ -47,16 +47,16 @@ module.exports =
   deactivate: ->
     @subscriptions.dispose()
 
-  animate: (from, to, editor) ->
+  animate: (from, to, editorElement) ->
     step = (currentStep) ->
-      editor.setScrollTop(currentStep)
+      editorElement.setScrollTop(currentStep)
 
     done = ->
       animationRunning = false
 
     unless animationRunning
       animationRunning = true
-      animationDuration = 0
+      animationDuration = 1
       if atom.config.get('keyboard-scroll.animate')
         animationDuration = atom.config.get('keyboard-scroll.animationDuration')
       jQuery({top: from}).animate({top: to}, duration: animationDuration, easing: "swing", step: step, done: done)
@@ -70,13 +70,14 @@ module.exports =
           editor.moveUp(linesToScroll)
 
     editor = atom.workspace.getActiveTextEditor()
+    editorElement = atom.views.getView(editor)
     if isKeydown
       linesToScroll = atom.config.get('keyboard-scroll.linesToScrollKeydown')
-      editor.setScrollTop(editor.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction))
       doMoveCursor()
+      editorElement.setScrollTop(editorElement.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction))
     else
       linesToScroll = atom.config.get('keyboard-scroll.linesToScrollSingle')
-      @animate(editor.getScrollTop(), editor.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction), editor)
+      @animate(editorElement.getScrollTop(), editorElement.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction), editorElement)
       doMoveCursor()
 
   scrollUp: (isKeydown, moveCursor) ->
