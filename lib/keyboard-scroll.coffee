@@ -75,6 +75,7 @@ module.exports =
       linesToScroll = atom.config.get('keyboard-scroll.linesToScrollKeydown')
       doMoveCursor()
       editorElement.setScrollTop(editorElement.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction))
+      editorElement.component.updateSync()
     else
       linesToScroll = atom.config.get('keyboard-scroll.linesToScrollSingle')
       @animate(editorElement.getScrollTop(), editorElement.getScrollTop() + (editor.getLineHeightInPixels() * linesToScroll * direction), editorElement)
