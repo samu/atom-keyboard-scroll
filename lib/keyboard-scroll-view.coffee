@@ -3,32 +3,58 @@
 {_} = require 'underscore-plus'
 
 module.exports = class AtomGitDiffDetailsView
+  linesToScrollSingle: undefined
+  linesToScrollKeydown: undefined
   animationDuration: undefined
+  throttledScroll: undefined
 
-  constructor: (@editor) ->
-    @editorElement = atom.views.getView(@editor)
+  reloadConfig: ->
+    @linesToScrollSingle = atom.config.get('keyboard-scroll.linesToScrollSingle')
+    @linesToScrollKeydown = atom.config.get('keyboard-scroll.linesToScrollKeydown')
 
     if atom.config.get('keyboard-scroll.animate')
       @animationDuration = atom.config.get('keyboard-scroll.animationDuration')
+    else
+      @animationDuration = 1
+
+    @throttledScroll = _.throttle ((fn) => fn()), atom.config.get('keyboard-scroll.throttle')
+
+  constructor: (@editor) ->
+    @editorElement = atom.views.getView(@editor)
 
     @subscriptions = new CompositeDisposable()
 
     @subscriptions.add @editor.onDidDestroy =>
       @subscriptions.dispose()
 
-    throttledScroll = _.throttle ((fn) => fn()), 30
-
     @subscriptions.add atom.commands.add @editorElement, "keyboard-scroll:scrollUpWithCursor", (e) =>
-      throttledScroll(=> @scrollUp(e.originalEvent.repeat, true))
+      @throttledScroll(=> @scrollUp(e.originalEvent.repeat, true))
 
     @subscriptions.add atom.commands.add @editorElement, "keyboard-scroll:scrollDownWithCursor", (e) =>
-      throttledScroll(=> @scrollDown(e.originalEvent.repeat, true))
+      @throttledScroll(=> @scrollDown(e.originalEvent.repeat, true))
 
     @subscriptions.add atom.commands.add @editorElement, "keyboard-scroll:scrollUp", (e) =>
-      throttledScroll(=> @scrollUp(e.originalEvent.repeat, false))
+      @throttledScroll(=> @scrollUp(e.originalEvent.repeat, false))
 
     @subscriptions.add atom.commands.add @editorElement, "keyboard-scroll:scrollDown", (e) =>
-      throttledScroll(=> @scrollDown(e.originalEvent.repeat, false))
+      @throttledScroll(=> @scrollDown(e.originalEvent.repeat, false))
+
+    @subscriptions.add atom.config.onDidChange "keyboard-scroll.linesToScrollSingle", =>
+      @reloadConfig()
+
+    @subscriptions.add atom.config.onDidChange "keyboard-scroll.linesToScrollKeydown", =>
+      @reloadConfig()
+
+    @subscriptions.add atom.config.onDidChange "keyboard-scroll.animate", =>
+      @reloadConfig()
+
+    @subscriptions.add atom.config.onDidChange "keyboard-scroll.animationDuration", =>
+      @reloadConfig()
+
+    @subscriptions.add atom.config.onDidChange "keyboard-scroll.throttle", =>
+      @reloadConfig()
+
+    @reloadConfig()
 
   step: (editorElement, currentStep) ->
     editorElement.setScrollTop(currentStep)
@@ -49,14 +75,12 @@ module.exports = class AtomGitDiffDetailsView
 
   doScroll: (isKeydown, moveCursor, direction) ->
     if isKeydown
-      linesToScroll = atom.config.get('keyboard-scroll.linesToScrollKeydown')
-      @doMoveCursor(moveCursor, direction, linesToScroll)
-      @editorElement.setScrollTop(@editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * linesToScroll * direction))
+      @doMoveCursor(moveCursor, direction, @linesToScrollKeydown)
+      @editorElement.setScrollTop(@editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * @linesToScrollKeydown * direction))
       @editorElement.component.updateSync()
     else
-      linesToScroll = atom.config.get('keyboard-scroll.linesToScrollSingle')
-      @animate(@editorElement.getScrollTop(), @editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * linesToScroll * direction), @editorElement)
-      @doMoveCursor(moveCursor, direction, linesToScroll)
+      @animate(@editorElement.getScrollTop(), @editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * @linesToScrollSingle * direction), @editorElement)
+      @doMoveCursor(moveCursor, direction, @linesToScrollSingle)
 
   scrollUp: (isKeydown, moveCursor) ->
     @doScroll(isKeydown, moveCursor, -1)

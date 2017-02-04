@@ -22,6 +22,11 @@ module.exports =
       default: 150
       title: "Duration of animation in milliseconds"
 
+    throttle:
+      type: "number"
+      default: 20
+      title: "Throttling of key down scrolling in milliseconds. This is useful if you have a fast keyrepeat and want to slow down scrolling."
+
   subscriptions: null
 
   activate: ->
