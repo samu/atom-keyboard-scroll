@@ -79,8 +79,8 @@ module.exports = class AtomGitDiffDetailsView
       @editorElement.setScrollTop(@editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * @linesToScrollKeydown * direction))
       @editorElement.component.updateSync()
     else
-      @animate(@editorElement.getScrollTop(), @editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * @linesToScrollSingle * direction), @editorElement)
       @doMoveCursor(moveCursor, direction, @linesToScrollSingle)
+      @animate(@editorElement.getScrollTop(), @editorElement.getScrollTop() + (@editor.getLineHeightInPixels() * @linesToScrollSingle * direction), @editorElement)
 
   scrollUp: (isKeydown, moveCursor) ->
     @doScroll(isKeydown, moveCursor, -1)
